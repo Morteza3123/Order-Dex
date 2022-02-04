@@ -1,4 +1,5 @@
-import { EVM_REVERT, INVALID_ARGUMENT, INVALID_ARGUMENT2, tokens } from './helpers'
+import Web3 from 'web3'
+import { EVM_REVERT, INVALID_ARGUMENT, INVALID_ARGUMENT2, tokens, ETHER_ADDRESS, ether } from './helpers'
 
 
 const Token = artifacts.require('./Token')
@@ -45,6 +46,37 @@ contract('Exchange', ([deployer, feeAccount, user1]) => {
 
     })
 
+    describe('fallback', () => {
+        it('reverts when Ether is sent', async () => {
+            await exchange.sendTransaction({value : 1, from : user1}).should.be.rejected
+        })
+    })
+
+    describe('depositing Ether', () => {
+        let result
+        let amount
+
+        beforeEach(async () => {
+            amount = ether(1)
+            result = await exchange.depositEther({ from : user1, value: amount})
+        })
+
+        it('tracks the ether deposit', async () => {
+            const balance = await exchange.tokens(ETHER_ADDRESS, user1)
+            balance.toString().should.equal(amount.toString())
+        })
+
+        it('emit an Deposit event', async () => {
+            const log = result.logs[0]
+            log.event.should.eq('Deposit')
+            const event = log.args
+            event.token.should.equal(ETHER_ADDRESS, 'token address is correct')
+            event.user.should.equal(user1, 'user address is correct')
+            event.amount.toString().should.equal(amount.toString(), 'amount is correct')
+            event.balance.toString().should.equal(amount.toString(), 'balance is correct')
+        })
+    })
+
     describe('depositing tokens', () => {
         let amount;
         let result;
@@ -76,9 +108,13 @@ contract('Exchange', ([deployer, feeAccount, user1]) => {
         })
         
         describe('failure', () => {
+            it("rejects Ether deposits", async () => {
+                await exchange.depositToken(ETHER_ADDRESS, tokens(10), { from : user1}).should.be.rejected
+            })
+
             it('fails when no tokens are approved', async () => {
                 //dont approve any roken befor depositing
-                await exchange.depositToken(token.address, tokens(10), {from : user1}).should.be.rejectedWith(EVM_REVERT)
+                await exchange.depositToken(token.address, tokens(10), {from : user1}).should.be.rejected
             })
         })
 
