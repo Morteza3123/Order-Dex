@@ -3,7 +3,8 @@ import {
   web3Loaded,
   web3AccountLoaded,
   tokenLoaded,
-  exchangeLoaded
+  exchangeLoaded,
+  cancelledOrdersLoaded
 } from './actions'
 import Token from '../abis/Token.json'
 import Exchange from '../abis/Exchange.json'
@@ -52,3 +53,12 @@ export const loadExchange = async (web3, networkId, dispatch) => {
     return null
   }
 }
+
+export const loadAllOrders = async (exchange, dispatch) => {
+
+  const cancelStream = await exchange.getPastEvents('Cancel', { fromBlock: 0, toBlick: 'latest'})
+  
+  const cancelledOrders = cancelStream.map((event) => event.returnValues)
+
+  dispatch(cancelledOrdersLoaded(cancelledOrders))
+} 

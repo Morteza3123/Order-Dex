@@ -13,6 +13,7 @@ import Content from './Content';
 import { contractsLoadedSelector } from '../store/selectors';
 
 class App extends Component {
+  
   componentWillMount() {
     this.loadBlockchainData(this.props.dispatch)
   }
