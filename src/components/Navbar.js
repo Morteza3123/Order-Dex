@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { accountSelector } from '../store/selectors'
+
 class Navbar extends Component {
   render() {
     return (
@@ -9,10 +10,10 @@ class Navbar extends Component {
         <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
-        <ul className="navbar-nav ms-auto">
+        <ul className="navbar-nav ml-auto">
           <li className="nav-item">
             <a
-              className="nav-link small "
+              className="nav-link small"
               href={`https://etherscan.io/address/${this.props.account}`}
               target="_blank"
               rel="noopener noreferrer"
